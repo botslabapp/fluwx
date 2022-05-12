@@ -11,23 +11,20 @@
 
 typedef void(^FluwxWXReqRunnable)(void);
 
-@implementation FluwxPlugin
-FluwxAuthHandler *_fluwxAuthHandler;
-FluwxShareHandler *_fluwxShareHandler;
-BOOL _isRunning;
-FluwxWXReqRunnable _initialWXReqRunnable;
+@implementation FluwxPlugin {
+    FluwxAuthHandler *_fluwxAuthHandler;
+    FluwxShareHandler *_fluwxShareHandler;
+    BOOL _isRunning;
+    FluwxWXReqRunnable _initialWXReqRunnable;
+
+}
 
 
 BOOL handleOpenURLByFluwx = YES;
 
-FlutterMethodChannel *channel = nil;
-
 + (void)registerWithRegistrar:(NSObject <FlutterPluginRegistrar> *)registrar {
     
-#if TARGET_OS_IPHONE
-        if (channel == nil) {
-#endif
-        channel = [FlutterMethodChannel
+        FlutterMethodChannel *channel = [FlutterMethodChannel
                 methodChannelWithName:@"com.jarvanmo/fluwx"
                       binaryMessenger:[registrar messenger]];
         FluwxPlugin *instance = [[FluwxPlugin alloc] initWithRegistrar:registrar methodChannel:channel];
@@ -35,9 +32,7 @@ FlutterMethodChannel *channel = nil;
         [[FluwxResponseHandler defaultManager] setMethodChannel:channel];
         
         [registrar addApplicationDelegate:instance];
-#if TARGET_OS_IPHONE
-        }
-#endif
+
 
 }
 
@@ -47,7 +42,6 @@ FlutterMethodChannel *channel = nil;
         _fluwxAuthHandler = [[FluwxAuthHandler alloc] initWithRegistrar:registrar methodChannel:flutterMethodChannel];
         _fluwxShareHandler = [[FluwxShareHandler alloc] initWithRegistrar:registrar];
         _isRunning = NO;
-        channel = flutterMethodChannel;
         [FluwxResponseHandler defaultManager].delegate = self;
         
     }
@@ -73,6 +67,10 @@ FlutterMethodChannel *channel = nil;
         [_fluwxAuthHandler stopAuthByQRCode:call result:result];
     } else if ([@"openWXApp" isEqualToString:call.method]) {
         result(@([WXApi openWXApp]));
+    } else if ([@"payWithFluwx" isEqualToString:call.method]) {
+        [self handlePayment:call result:result];
+    } else if ([@"payWithHongKongWallet" isEqualToString:call.method]) {
+        [self handleHongKongWalletPayment:call result:result];
     } else if ([@"launchMiniProgram" isEqualToString:call.method]) {
         [self handleLaunchMiniProgram:call result:result];
     } else if ([@"subscribeMsg" isEqualToString:call.method]) {
@@ -93,7 +91,7 @@ FlutterMethodChannel *channel = nil;
         [self openWeChatCustomerServiceChat:call result:result];
     } else if ([@"checkSupportOpenBusinessView" isEqualToString:call.method]) {
         [self checkSupportOpenBusinessView:call result:result];
-    } else {
+    }else {
         result(FlutterMethodNotImplemented);
     }
 }
@@ -194,7 +192,7 @@ FlutterMethodChannel *channel = nil;
 
 - (void)handleHongKongWalletPayment:(FlutterMethodCall *)call result:(FlutterResult)result {
     NSString *partnerId = call.arguments[@"prepayId"];
-
+    
     WXOpenBusinessWebViewReq *req = [[WXOpenBusinessWebViewReq alloc] init];
     req.businessType = 1;
     NSMutableDictionary *queryInfoDic = [NSMutableDictionary dictionary];

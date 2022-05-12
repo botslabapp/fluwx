@@ -6,9 +6,11 @@
 #import "FluwxAuthHandler.h"
 
 @implementation FluwxAuthHandler
+{
+    WechatAuthSDK *_qrauth;
+    FlutterMethodChannel *_fluwxMethodChannel;
+}
 
-WechatAuthSDK *_qrauth;
-FlutterMethodChannel *_fluwxMethodChannel = nil;
 
 - (instancetype)initWithRegistrar:(NSObject <FlutterPluginRegistrar> *)registrar methodChannel:(FlutterMethodChannel *)flutterMethodChannel {
     self = [super init];
